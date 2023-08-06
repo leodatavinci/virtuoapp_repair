@@ -18,7 +18,7 @@ export default function App() {
   return (
     <AppProvider i18n={{}}>
       <Frame navigation={<NavBar setSelected={setSelected} />}>
-        <Page title="Virtuo">
+        <Page title="Virtuo Updated">
           <Layout>
             <Layout.Section>
               <Card>
