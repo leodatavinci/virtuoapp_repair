@@ -1,0 +1,19 @@
+/* NavBar.css */
+
+.nav-button {
+    margin: 10px;
+  }
+  
+  .Polaris-Navigation {
+    flex: 0 0 260px;
+    max-width: 260px;
+    /* You might want to change the width on small screens */
+  }
+  
+  @media only screen and (max-width: 768px) {
+    .Polaris-Navigation {
+      flex: 0 0 auto; /* Makes the width automatic and not fixed */
+      max-width: 100%; /* Allows the navigation to take full width */
+    }
+  }
+  

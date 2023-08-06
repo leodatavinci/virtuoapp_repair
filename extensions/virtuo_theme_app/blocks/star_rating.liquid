@@ -1,0 +1,208 @@
+<button id="chat-button">
+  <span class="visually-hidden">Open chat</span>
+</button>
+
+<div id="chat-window" class="hidden">
+  <div id="chat-messages"></div>
+  <form id="chat-form">
+    <input type="text" id="chat-input" placeholder="Type it.....">
+    <button type="submit">Send</button>
+  </form>
+</div>
+
+<div id="messages-container"></div>
+
+<style>
+  .visually-hidden {
+    position: absolute !important;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    clip: rect(0 0 0 0);
+    word-wrap: normal !important;
+  }
+
+  #chat-button {
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
+    width: 80px;
+    height: 80px;
+    background-color: #4285f4;
+    border-radius: 50%;
+    border: none;
+    color: #ffffff;
+    font-size: 24px;
+    text-align: center;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    z-index: 100;
+    transition: transform 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
+  }
+
+  #chat-button:hover {
+    transform: scale(1.10);
+  }
+
+  #chat-button:active {
+    transform: scale(0.95);
+  }
+
+  #chat-window {
+    position: fixed;
+    bottom: 0;
+    right: 15px;
+    width: 300px;
+    height: 400px;
+    background-color: #f0f0f0; /* Change the background color to gray */
+    border-radius: 10px 10px 0 0;
+    z-index: 100;
+    overflow: auto;
+  }
+
+  #chat-messages {
+    padding: 10px;
+    height: calc(100% - 60px);
+    overflow-y: auto;
+  }
+
+  #chat-form {
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    background-color: #ffffff;
+    border-top: 1px solid #cccccc;
+    height: 50px;
+  }
+
+  #chat-input {
+    flex-grow: 1;
+    border: none;
+    padding: 10px;
+    outline: none;
+  }
+
+  #chat-form button {
+    background-color: #4285f4;
+    border: none;
+    color: #ffffff;
+    padding: 10px;
+    cursor: pointer;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  /* General message styling */
+.message {
+  max-width: 70%;
+  margin-bottom: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Sent messages on the right side */
+.message.sent {
+  background-color: #e5e5ea;
+  color: #000;
+  margin-left: auto;
+  margin-right: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* Received messages on the left side */
+.message.received {
+  background-color: #007aff;
+  color: #fff;
+  margin-left: 0;
+  margin-right: auto;
+  border-bottom-left-radius: 0;
+}
+
+/* Webhook messages on the right side */
+.message.webhook {
+  background-color: #4caf50;
+  color: #fff;
+  margin-left: auto;
+  margin-right: 0;
+  border-bottom-right-radius: 0;
+}
+
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const chatButton = document.querySelector("#chat-button");
+  const chatInput = document.querySelector("#chat-input");
+  const chatForm = document.querySelector("#chat-form");
+  const chatWindow = document.querySelector("#chat-window");
+  const chatMessages = document.querySelector("#chat-messages");
+  
+  const socket = new WebSocket('wss://shopsagewebsocket3.herokuapp.com');
+
+  chatButton.addEventListener("click", () => {
+    chatWindow.classList.toggle("hidden");
+    chatInput.focus();
+  });
+
+  chatForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const text = chatInput.value.trim();
+    if (text.length === 0) {
+      return;
+    }
+
+    sendMessageToServer(text);
+
+    // Add the sent message to the chat window
+    addMessageToChat({ text: text, type: "sent" });
+
+    chatInput.value = "";
+    chatInput.focus();
+  });
+
+  function addMessageToChat(message) {
+    const messageElement = document.createElement("div");
+    messageElement.innerHTML = message.text;
+    messageElement.classList.add("message", message.type);
+    chatMessages.appendChild(messageElement);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function sendMessageToServer(text) {
+    // Get the shop domain using Liquid and interpolate it into the script
+    var shopDomain = "{{ shop.domain }}";
+    console.log(shopDomain);
+
+    // Include the shop domain in the message sent to the server
+    socket.send(JSON.stringify({ message: text, shopDomain: shopDomain }));
+  }
+
+  // WebSocket event for when a message is received
+  socket.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data && data.response){
+        addMessageToChat({ text: data.response, type: "received" });
+    }
+  };
+});
+</script>
+
+{% schema %}
+{
+  "name": "Chat Window",
+  "target": "body",
+  "stylesheet": "chat-window.css",
+  "javascript": "chat-window.js",
+  "settings": []
+}
+{% endschema %}
