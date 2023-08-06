@@ -6,7 +6,9 @@
   "scripts": {
     "shopify": "shopify",
     "build": "shopify app build",
-    "serve": "shopify app serve",
+    "start": "node web/index.js",
+    "heroku-postbuild": "npm run build",
+    "serve": "node web/index.js",
     "dev": "shopify app dev",
     "push": "shopify app push",
     "scaffold": "shopify app scaffold",
