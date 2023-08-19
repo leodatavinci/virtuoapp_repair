@@ -1,208 +1,265 @@
-<button id="chat-button">
-  <span class="visually-hidden">Open chat</span>
-</button>
-
-<div id="chat-window" class="hidden">
-  <div id="chat-messages"></div>
-  <form id="chat-form">
-    <input type="text" id="chat-input" placeholder="Type it.....">
-    <button type="submit">Send</button>
-  </form>
-</div>
+<head>
+  <!-- ... your existing meta tags and other content ... -->
 
 <div id="messages-container"></div>
-
-<style>
-  .visually-hidden {
-    position: absolute !important;
-    overflow: hidden;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    border: 0;
-    clip: rect(0 0 0 0);
-    word-wrap: normal !important;
-  }
-
-  #chat-button {
-    position: fixed;
-    bottom: 15px;
-    right: 15px;
-    width: 80px;
-    height: 80px;
-    background-color: #4285f4;
-    border-radius: 50%;
-    border: none;
-    color: #ffffff;
-    font-size: 24px;
-    text-align: center;
-    padding: 0;
-    font: inherit;
-    cursor: pointer;
-    outline: inherit;
-    z-index: 100;
-    transition: transform 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
-  }
-
-  #chat-button:hover {
-    transform: scale(1.10);
-  }
-
-  #chat-button:active {
-    transform: scale(0.95);
-  }
-
-  #chat-window {
-    position: fixed;
-    bottom: 0;
-    right: 15px;
-    width: 300px;
-    height: 400px;
-    background-color: #f0f0f0; /* Change the background color to gray */
-    border-radius: 10px 10px 0 0;
-    z-index: 100;
-    overflow: auto;
-  }
-
-  #chat-messages {
-    padding: 10px;
-    height: calc(100% - 60px);
-    overflow-y: auto;
-  }
-
-  #chat-form {
-    display: flex;
-    align-items: center;
-    padding: 0 10px;
-    background-color: #ffffff;
-    border-top: 1px solid #cccccc;
-    height: 50px;
-  }
-
-  #chat-input {
-    flex-grow: 1;
-    border: none;
-    padding: 10px;
-    outline: none;
-  }
-
-  #chat-form button {
-    background-color: #4285f4;
-    border: none;
-    color: #ffffff;
-    padding: 10px;
-    cursor: pointer;
-  }
-
-  .hidden {
-    display: none;
-  }
-
-  /* General message styling */
-.message {
-  max-width: 70%;
-  margin-bottom: 8px;
-  padding: 12px;
-  border-radius: 12px;
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-/* Sent messages on the right side */
-.message.sent {
-  background-color: #e5e5ea;
-  color: #000;
-  margin-left: auto;
-  margin-right: 0;
-  border-bottom-right-radius: 0;
-}
-
-/* Received messages on the left side */
-.message.received {
-  background-color: #007aff;
-  color: #fff;
-  margin-left: 0;
-  margin-right: auto;
-  border-bottom-left-radius: 0;
-}
-
-/* Webhook messages on the right side */
-.message.webhook {
-  background-color: #4caf50;
-  color: #fff;
-  margin-left: auto;
-  margin-right: 0;
-  border-bottom-right-radius: 0;
-}
-
-</style>
-
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-  const chatButton = document.querySelector("#chat-button");
-  const chatInput = document.querySelector("#chat-input");
-  const chatForm = document.querySelector("#chat-form");
-  const chatWindow = document.querySelector("#chat-window");
-  const chatMessages = document.querySelector("#chat-messages");
-  
-  const socket = new WebSocket('wss://shopsagewebsocket3.herokuapp.com');
-
-  chatButton.addEventListener("click", () => {
-    chatWindow.classList.toggle("hidden");
-    chatInput.focus();
-  });
-
-  chatForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-
-    const text = chatInput.value.trim();
-    if (text.length === 0) {
-      return;
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    rel="stylesheet"
+  />
+  <style>
+    .visually-hidden {
+      position: absolute !important;
+      overflow: hidden;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      border: 0;
+      clip: rect(0 0 0 0);
+      word-wrap: normal !important;
+      font-family: Arial, sans-serif; /* Updated font */
     }
 
-    sendMessageToServer(text);
-
-    // Add the sent message to the chat window
-    addMessageToChat({ text: text, type: "sent" });
-
-    chatInput.value = "";
-    chatInput.focus();
-  });
-
-  function addMessageToChat(message) {
-    const messageElement = document.createElement("div");
-    messageElement.innerHTML = message.text;
-    messageElement.classList.add("message", message.type);
-    chatMessages.appendChild(messageElement);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
-
-  function sendMessageToServer(text) {
-    // Get the shop domain using Liquid and interpolate it into the script
-    var shopDomain = "{{ shop.domain }}";
-    console.log(shopDomain);
-
-    // Include the shop domain in the message sent to the server
-    socket.send(JSON.stringify({ message: text, shopDomain: shopDomain }));
-  }
-
-  // WebSocket event for when a message is received
-  socket.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    if (data && data.response){
-        addMessageToChat({ text: data.response, type: "received" });
+    #chat-button {
+      position: fixed;
+      bottom: 15px;
+      right: 15px;
+      width: 80px;
+      height: 80px;
+      background-color: #6DDCBF;
+      border-radius: 50%;
+      border: none;
+      color: #ffffff;
+      font-size: 24px;
+      text-align: center;
+      padding: 0;
+      font: inherit;
+      cursor: pointer;
+      outline: inherit;
+      z-index: 100;
+      transition: transform 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
+      font-family: Arial, sans-serif; /* Updated font */
     }
-  };
-});
-</script>
 
-{% schema %}
-{
-  "name": "Chat Window",
-  "target": "body",
-  "stylesheet": "chat-window.css",
-  "javascript": "chat-window.js",
-  "settings": []
-}
-{% endschema %}
+    #chat-button i {
+      font-size: 24px;
+    }
+
+    #chat-button:hover {
+      transform: scale(1.10);
+    }
+
+    #chat-button:active {
+      transform: scale(0.95);
+    }
+
+    #chat-window {
+      position: fixed;
+      bottom: 0;
+      right: 15px;
+      width: 300px;
+      height: 400px;
+      background-color: #f0f0f0;
+      border-radius: 10px 10px 0 0;
+      z-index: 100;
+      overflow: auto;
+      font-family: Arial, sans-serif; /* Updated font */
+    }
+
+    #chat-messages {
+      padding: 10px;
+      height: calc(100% - 60px);
+      overflow-y: auto;
+    }
+
+    #chat-form {
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      background-color: #ffffff;
+      border-top: 1px solid #cccccc;
+      height: 50px;
+    }
+
+    #chat-input {
+      flex-grow: 1;
+      border: none;
+      padding: 10px;
+      outline: none;
+      background-color: #ffffff;
+      border: 1px solid #6DDCBF;
+      color: #000000;
+      font-family: Arial, sans-serif; /* Updated font */
+    }
+
+    #chat-form button {
+      background-color: #6DDCBF; /* Updated color */
+      border: none;
+      color: #ffffff;
+      padding: 10px;
+      cursor: pointer;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .message {
+      max-width: 70%;
+      margin-bottom: 8px;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.4;
+      font-family: Arial, sans-serif; /* Updated font */
+    }
+
+    .message.sent {
+      background-color: #e5e5ea;
+      color: #000;
+      margin-left: auto;
+      margin-right: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    .message.received {
+      background-color: #6DDCBF;
+      color: #ffffff;
+      margin-left: 0;
+      margin-right: auto;
+      border-bottom-left-radius: 0;
+    }
+
+    .message.webhook {
+      background-color: #6DDCBF;
+      color: #ffffff;
+      margin-left: auto;
+      margin-right: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    /* Responsive styling for chat window */
+    @media (max-width: 768px) {
+      #chat-window {
+        width: 100%;
+        height: 100%;
+        right: 0;
+        border-radius: 0;
+      }
+
+      #chat-input {
+        flex: 1; 
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <button id="chat-button">
+    <span class="visually-hidden">Open chat</span>
+    <i class="fas fa-envelope"></i>
+  </button>
+
+  <div id="chat-window" class="hidden">
+    <div id="chat-messages"></div>
+    <form id="chat-form">
+      <input type="text" id="chat-input" placeholder="Type it.....">
+      <button type="submit"><i class="fas fa-arrow-right"></i></button>
+    </form>
+  </div>
+
+  <div id="messages-container"></div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const chatButton = document.querySelector("#chat-button");
+      const chatInput = document.querySelector("#chat-input");
+      const chatForm = document.querySelector("#chat-form");
+      const chatWindow = document.querySelector("#chat-window");
+      const chatMessages = document.querySelector("#chat-messages");
+
+      // Listen to changes in screen size
+      const mediaQuery = window.matchMedia("(max-width: 768px)");
+      mediaQuery.addListener(handleMediaQueryChange);
+
+      // Initial check and styling application
+      handleMediaQueryChange(mediaQuery);
+
+      function handleMediaQueryChange(mediaQuery) {
+          if (mediaQuery.matches) {
+              // For mobile devices, set the chat window to full width and height
+              chatWindow.style.width = "100%";
+              chatWindow.style.height = "100%";
+              chatWindow.style.bottom = "0";
+              chatWindow.style.borderRadius = "0";
+              chatWindow.style.right = "0";
+          } else {
+              // For larger screens, revert to original styles
+              chatWindow.style.width = "300px";
+              chatWindow.style.height = "400px";
+              chatWindow.style.bottom = "15px";
+              chatWindow.style.borderRadius = "10px 10px 0 0";
+              chatWindow.style.right = "15px";
+          }
+      }
+
+      const socket = new WebSocket('wss://stormy-island-30376-7ef7a81c2734.herokuapp.com/');
+
+      chatButton.addEventListener("click", () => {
+        chatWindow.classList.toggle("hidden");
+        chatInput.focus();
+      });
+
+      chatForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const text = chatInput.value.trim();
+        if (text.length === 0) {
+          return;
+        }
+
+        sendMessageToServer(text);
+
+        addMessageToChat({ text: text, type: "sent" });
+
+        chatInput.value = "";
+        chatInput.focus();
+      });
+
+      function addMessageToChat(message) {
+        const messageElement = document.createElement("div");
+        messageElement.innerHTML = message.text;
+        messageElement.classList.add("message", message.type);
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      function sendMessageToServer(text) {
+        var shopDomain = "{{ shop.domain }}";
+        console.log(shopDomain);
+        socket.send(JSON.stringify({ message: text, shopDomain: shopDomain }));
+      }
+
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data && data.response){
+            addMessageToChat({ text: data.response, type: "received" });
+        }
+      };
+    });
+  </script>
+
+  {% schema %}
+  {
+    "name": "Chat Window Updated",
+    "target": "body",
+    "settings": []
+  }
+  {% endschema %}
+</body>
