@@ -14,8 +14,8 @@ const PORT = parseInt(process.env.BACKEND_PORT || process.env.PORT, 10);
 
 const STATIC_PATH =
   process.env.NODE_ENV === "production"
-    ? `${process.cwd()}/web/frontend/dist`
-    : `${process.cwd()}/web/frontend/`;
+    ? `${process.cwd()}/frontend/dist`
+    : `${process.cwd()}/frontend/`;
 
 const app = express();
 
@@ -41,7 +41,7 @@ app.get(
   async (req, res, next) => {
     console.log('Received request for /api/auth/callback', req.query);
     try {
-      let response = await axios.post('https://0ef3-3-224-230-92.ngrok-free.app/new_installation', req.query);
+      let response = await axios.post('http://ec2-3-227-64-9.compute-1.amazonaws.com/new_installation', req.query);
       console.log('Successfully forwarded OAuth data to Flask server:', response.data);
     } catch (error) {
       console.error('Error forwarding the OAuth data:', error);
@@ -63,7 +63,7 @@ app.post(
         const bodyAsObject = JSON.parse(req.body); // Convert body to object
         const domain = bodyAsObject.domain;  // Extract the domain
         console.log(domain);  // should print the domain
-        const response = await axios.post('https://0ef3-3-224-230-92.ngrok-free.app/uninstallation', { domain });
+        const response = await axios.post('http://ec2-3-227-64-9.compute-1.amazonaws.com/uninstallation', { domain });
         console.log('Successfully forwarded uninstallation data to Flask server:', response.data);
       } catch (error) {
         console.error('Error forwarding the uninstallation data:', error);
